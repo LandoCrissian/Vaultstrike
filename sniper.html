@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vaultstrike Access</title>
+  <meta name="theme-color" content="#00ffe1" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .box {
+      background: rgba(255,255,255,0.05);
+      padding: 24px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 20px #00ffe1;
+    }
+    h2 {
+      margin-bottom: 12px;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    input {
+      background: #111;
+      color: #fff;
+    }
+    button {
+      background: #00ffe1;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .status {
+      margin-top: 16px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box" id="stepBox">
+    <h2>Enter Vaultstrike Password</h2>
+    <input type="password" id="passInput" placeholder="Enter password..." />
+    <button onclick="checkPassword()">Enter</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const PASSWORD = "vaultstrike2025";
+    const Y2K_CA = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+
+    function checkPassword() {
+      const input = document.getElementById("passInput").value;
+      if (input === PASSWORD) {
+        loadCROPhase();
+      } else {
+        document.getElementById("status").innerText = "Access Denied.";
+      }
+    }
+
+    function loadCROPhase() {
+      document.getElementById("stepBox").innerHTML = `
+        <h2>Step 1: Connect CRO Wallet</h2>
+        <p>Verify you hold at least 20M Y2K</p>
+        <button onclick="connectCRO()">Connect Wallet</button>
+        <div class="status" id="status"></div>
+      `;
+    }
+
+    async function connectCRO() {
+      const provider = new WalletConnectProvider.default({
+        rpc: { 25: "https://evm.cronos.org" },
+        chainId: 25,
+      });
+      await provider.enable();
+      const ethersProvider = new ethers.providers.Web3Provider(provider);
+      const signer = ethersProvider.getSigner();
+      const address = await signer.getAddress();
+
+      const y2k = new ethers.Contract(
+        Y2K_CA,
+        ["function balanceOf(address) view returns (uint256)"],
+        signer
+      );
+
+      const balance = await y2k.balanceOf(address);
+      const needed = ethers.BigNumber.from("20000000000000000000000000"); // 20M Y2K
+
+      if (balance.gte(needed)) {
+        document.getElementById("status").innerHTML = "<p style='color:lime;'>Y2K Verified</p>";
+        setTimeout(loadSOLPhase, 1500);
+      } else {
+        document.getElementById("status").innerHTML = "<p style='color:red;'>Y2K Too Low</p>";
+      }
+    }
+
+    function loadSOLPhase() {
+      document.getElementById("stepBox").innerHTML = `
+        <h2>Step 2: Connect SOL Wallet</h2>
+        <p>Verify you hold at least 20M ROAST</p>
+        <button onclick="connectSOL()">Connect Wallet</button>
+        <div class="status" id="status"></div>
+      `;
+    }
+
+    function connectSOL() {
+      if (window.solana && window.solana.isPhantom) {
+        window.solana.connect().then(res => {
+          // Simulate ROAST check (wire this in later)
+          document.getElementById("status").innerHTML = "<p style='color:lime;'>ROAST Verified</p>";
+          setTimeout(triggerSniperLaunch, 1500);
+        });
+      } else {
+        alert("Install Phantom Wallet to continue.");
+      }
+    }
+
+    function triggerSniperLaunch() {
+      // Placeholder — next we’ll build a sniper animation + redirect
+      document.getElementById("stepBox").innerHTML = `
+        <h2>ACCESS GRANTED</h2>
+        <p>Firing sniper...</p>
+      `;
+      setTimeout(() => {
+        window.location.href = "sniper-dashboard.html";
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
