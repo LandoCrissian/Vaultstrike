@@ -7,125 +7,127 @@
   <meta name="theme-color" content="#000000" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #000;
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-    .grain {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/8/89/Noise_texture.png');
-      opacity: 0.08;
-      z-index: 0;
-      animation: moveGrain 10s steps(10) infinite;
-    }
+  .grain {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/8/89/Noise_texture.png');
+    opacity: 0.08;
+    z-index: 0;
+    animation: moveGrain 10s steps(10) infinite;
+  }
 
-    @keyframes moveGrain {
-      0% { background-position: 0 0; }
-      50% { background-position: 100px 100px; }
-      100% { background-position: 0 0; }
-    }
+  @keyframes moveGrain {
+    0% { background-position: 0 0; }
+    50% { background-position: 100px 100px; }
+    100% { background-position: 0 0; }
+  }
 
-    .glow-box {
-      position: relative;
-      z-index: 1;
-      background: rgba(0,0,0,0.7);
-      padding: 32px;
-      border-radius: 16px;
-      text-align: center;
-      animation: rgbBorder 5s linear infinite;
-      box-shadow: 0 0 30px red;
-    }
+  .glow-box {
+    position: relative;
+    z-index: 1;
+    background: rgba(0,0,0,0.7);
+    padding: 32px 24px;
+    border-radius: 16px;
+    text-align: center;
+    animation: softRGB 6s ease-in-out infinite;
+    max-width: 340px;
+    width: 90%;
+  }
 
-    @keyframes rgbBorder {
-      0% { box-shadow: 0 0 20px red; }
-      33% { box-shadow: 0 0 20px lime; }
-      66% { box-shadow: 0 0 20px blue; }
-      100% { box-shadow: 0 0 20px red; }
-    }
+  @keyframes softRGB {
+    0% { box-shadow: 0 0 15px #ff0080; }
+    33% { box-shadow: 0 0 15px #00ffe1; }
+    66% { box-shadow: 0 0 15px #00ff88; }
+    100% { box-shadow: 0 0 15px #ff0080; }
+  }
 
-    .title {
-      font-size: 2rem;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, red, lime, blue, red);
-      background-size: 300%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: gradientText 4s ease infinite;
-    }
+  .title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #ff9900, #00ff66, #00cfff, #ff9900);
+    background-size: 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 5s ease infinite;
+  }
 
-    @keyframes gradientText {
-      0% { background-position: 0% }
-      50% { background-position: 100% }
-      100% { background-position: 0% }
-    }
+  @keyframes gradientText {
+    0% { background-position: 0% }
+    50% { background-position: 100% }
+    100% { background-position: 0% }
+  }
 
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-    }
+  input, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+  }
 
-    input {
-      background: #111;
-      color: white;
-    }
+  input {
+    background: #111;
+    color: white;
+    margin-bottom: 12px;
+  }
 
-    button {
-      background: #00ffe1;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
+  input::placeholder {
+    color: #00ffe1;
+    opacity: 0.6;
+  }
 
-    button:hover {
-      transform: scale(1.05);
-    }
+  button {
+    background: #00ffe1;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
 
-    .status {
-      margin-top: 14px;
-      font-size: 14px;
-      color: #ccc;
-    }
-  </style>
-</head>
-<body>
-  <div class="grain"></div>
-  <div class="glow-box">
-    <div class="title">Vaultstrike Gate</div>
-    <input type="password" id="passInput" placeholder="Enter Password" />
-    <button onclick="checkPass()">Enter</button>
-    <div class="status" id="status"></div>
-  </div>
+  button:hover {
+    transform: scale(1.05);
+  }
 
-  <script>
-    const PASSWORD = "vaultstrike2025";
+  .status {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #ccc;
+  }
+</style>
 
-    function checkPass() {
-      const input = document.getElementById("passInput").value;
-      const status = document.getElementById("status");
-      if (input === PASSWORD) {
-        status.textContent = "Access Granted...";
-        setTimeout(() => window.location.href = "access.html", 1200);
-      } else {
-        status.textContent = "Access Denied.";
-      }
+<script>
+  const PASSWORD = "vaultstrike2025";
+
+  function checkPass() {
+    const input = document.getElementById("passInput").value;
+    const status = document.getElementById("status");
+    if (input === PASSWORD) {
+      status.textContent = "Access Granted...";
+      setTimeout(() => window.location.href = "access.html", 1200);
+    } else {
+      status.textContent = "Access Denied.";
     }
-  </script>
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") checkPass();
+  });
+</script>
 </body>
 </html>
