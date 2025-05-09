@@ -4,153 +4,127 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vaultstrike Access</title>
-  <meta name="theme-color" content="#00ffe1" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+  <meta name="theme-color" content="#000000" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       background: #000;
-      color: #fff;
-      font-family: 'Space Grotesk', sans-serif;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+    }
+
+    .grain {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
       height: 100vh;
-      margin: 0;
-      padding: 20px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/8/89/Noise_texture.png');
+      opacity: 0.08;
+      z-index: 0;
+      animation: moveGrain 10s steps(10) infinite;
     }
-    .box {
-      background: rgba(255,255,255,0.05);
-      padding: 24px;
+
+    @keyframes moveGrain {
+      0% { background-position: 0 0; }
+      50% { background-position: 100px 100px; }
+      100% { background-position: 0 0; }
+    }
+
+    .glow-box {
+      position: relative;
+      z-index: 1;
+      background: rgba(0,0,0,0.7);
+      padding: 32px;
       border-radius: 16px;
-      width: 100%;
-      max-width: 400px;
       text-align: center;
-      box-shadow: 0 0 20px #00ffe1;
+      animation: rgbBorder 5s linear infinite;
+      box-shadow: 0 0 30px red;
     }
-    h2 {
-      margin-bottom: 12px;
+
+    @keyframes rgbBorder {
+      0% { box-shadow: 0 0 20px red; }
+      33% { box-shadow: 0 0 20px lime; }
+      66% { box-shadow: 0 0 20px blue; }
+      100% { box-shadow: 0 0 20px red; }
     }
+
+    .title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, red, lime, blue, red);
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientText 4s ease infinite;
+    }
+
+    @keyframes gradientText {
+      0% { background-position: 0% }
+      50% { background-position: 100% }
+      100% { background-position: 0% }
+    }
+
     input, button {
       width: 100%;
       padding: 12px;
       margin-top: 12px;
-      border: none;
       border-radius: 10px;
-      font-size: 16px;
+      border: none;
+      font-size: 1rem;
     }
+
     input {
       background: #111;
-      color: #fff;
+      color: white;
     }
+
     button {
       background: #00ffe1;
-      color: #000;
+      color: black;
       font-weight: bold;
       cursor: pointer;
+      transition: transform 0.2s;
     }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
     .status {
-      margin-top: 16px;
+      margin-top: 14px;
       font-size: 14px;
-    }
-    .blast {
-      font-size: 32px;
-      color: #00ffe1;
-      animation: zoom 0.8s ease-in-out infinite alternate;
-    }
-    @keyframes zoom {
-      from { transform: scale(1); opacity: 1; }
-      to { transform: scale(1.2); opacity: 0.7; }
+      color: #ccc;
     }
   </style>
 </head>
 <body>
-  <div class="box" id="stepBox">
-    <h2>Enter Vaultstrike Password</h2>
-    <input type="password" id="passInput" placeholder="Enter password..." />
-    <button onclick="checkPassword()">Enter</button>
+  <div class="grain"></div>
+  <div class="glow-box">
+    <div class="title">Vaultstrike Gate</div>
+    <input type="password" id="passInput" placeholder="Enter Password" />
+    <button onclick="checkPass()">Enter</button>
     <div class="status" id="status"></div>
   </div>
 
   <script>
     const PASSWORD = "vaultstrike2025";
-    const Y2K_CA = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
 
-    function checkPassword() {
+    function checkPass() {
       const input = document.getElementById("passInput").value;
+      const status = document.getElementById("status");
       if (input === PASSWORD) {
-        loadCROPhase();
+        status.textContent = "Access Granted...";
+        setTimeout(() => window.location.href = "access.html", 1200);
       } else {
-        document.getElementById("status").innerText = "Access Denied.";
+        status.textContent = "Access Denied.";
       }
-    }
-
-    function loadCROPhase() {
-      document.getElementById("stepBox").innerHTML = `
-        <h2>Step 1: Connect CRO Wallet</h2>
-        <p>Verify 20M+ Y2K holdings</p>
-        <button onclick="connectCRO()">Connect Wallet</button>
-        <div class="status" id="status"></div>
-      `;
-    }
-
-    async function connectCRO() {
-      const provider = new WalletConnectProvider.default({
-        rpc: { 25: "https://evm.cronos.org" },
-        chainId: 25,
-      });
-      await provider.enable();
-      const ethersProvider = new ethers.providers.Web3Provider(provider);
-      const signer = ethersProvider.getSigner();
-      const address = await signer.getAddress();
-
-      const y2k = new ethers.Contract(
-        Y2K_CA,
-        ["function balanceOf(address) view returns (uint256)"],
-        signer
-      );
-
-      const balance = await y2k.balanceOf(address);
-      const threshold = ethers.BigNumber.from("20000000000000000000000000"); // 20M Y2K
-
-      if (balance.gte(threshold)) {
-        document.getElementById("status").innerHTML = "<p style='color:lime;'>Y2K Verified</p>";
-        setTimeout(loadSOLPhase, 1500);
-      } else {
-        document.getElementById("status").innerHTML = "<p style='color:red;'>Y2K Too Low</p>";
-      }
-    }
-
-    function loadSOLPhase() {
-      document.getElementById("stepBox").innerHTML = `
-        <h2>Step 2: Connect SOL Wallet</h2>
-        <p>Verify 20M+ ROAST holdings</p>
-        <button onclick="connectSOL()">Connect Wallet</button>
-        <div class="status" id="status"></div>
-      `;
-    }
-
-    function connectSOL() {
-      if (window.solana && window.solana.isPhantom) {
-        window.solana.connect().then(res => {
-          // Simulated for now
-          document.getElementById("status").innerHTML = "<p style='color:lime;'>ROAST Verified</p>";
-          setTimeout(triggerSniperLaunch, 1500);
-        });
-      } else {
-        alert("Please install Phantom Wallet.");
-      }
-    }
-
-    function triggerSniperLaunch() {
-      document.getElementById("stepBox").innerHTML = `
-        <h2 class="blast">SNIPER FIRED</h2>
-        <p>Tracking Y2K target...</p>
-      `;
-      setTimeout(() => {
-        window.location.href = "sniper-dashboard.html";
-      }, 3000);
     }
   </script>
 </body>
