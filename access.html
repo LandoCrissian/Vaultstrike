@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vaultstrike Gate</title>
+  <meta name="theme-color" content="#000000" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background-color: #000;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .glow-box {
+      background-color: #111;
+      border-radius: 20px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffe1;
+      animation: rgbPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes rgbPulse {
+      0% { box-shadow: 0 0 10px #ff00ff; }
+      33% { box-shadow: 0 0 15px #00ffe1; }
+      66% { box-shadow: 0 0 15px #00ff88; }
+      100% { box-shadow: 0 0 10px #ff00ff; }
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, #ff9900, #00ff66, #00cfff);
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textGlow 6s ease-in-out infinite;
+    }
+
+    @keyframes textGlow {
+      0% { background-position: 0% }
+      50% { background-position: 100% }
+      100% { background-position: 0% }
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background-color: #222;
+      color: #0ff;
+      margin-bottom: 16px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    input::placeholder {
+      color: #00ffe1;
+      opacity: 0.5;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: #00ffe1;
+      color: #000;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-box">
+    <h1>Vaultstrike Gate</h1>
+    <input type="password" id="passInput" placeholder="Enter Password" />
+    <button onclick="checkPassword()">Enter</button>
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const PASSWORD = "vaultstrike2025"; // Update if needed
+    function checkPassword() {
+      const input = document.getElementById("passInput").value;
+      const status = document.getElementById("status");
+      if (input === PASSWORD) {
+        status.textContent = "Access granted...";
+        setTimeout(() => window.location.href = "wallet.html", 1200);
+      } else {
+        status.textContent = "Access denied.";
+      }
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") checkPassword();
+    });
+  </script>
+</body>
+</html>
