@@ -54,6 +54,15 @@
       margin-top: 16px;
       font-size: 14px;
     }
+    .blast {
+      font-size: 32px;
+      color: #00ffe1;
+      animation: zoom 0.8s ease-in-out infinite alternate;
+    }
+    @keyframes zoom {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(1.2); opacity: 0.7; }
+    }
   </style>
 </head>
 <body>
@@ -80,7 +89,7 @@
     function loadCROPhase() {
       document.getElementById("stepBox").innerHTML = `
         <h2>Step 1: Connect CRO Wallet</h2>
-        <p>Verify you hold at least 20M Y2K</p>
+        <p>Verify 20M+ Y2K holdings</p>
         <button onclick="connectCRO()">Connect Wallet</button>
         <div class="status" id="status"></div>
       `;
@@ -103,9 +112,9 @@
       );
 
       const balance = await y2k.balanceOf(address);
-      const needed = ethers.BigNumber.from("20000000000000000000000000"); // 20M Y2K
+      const threshold = ethers.BigNumber.from("20000000000000000000000000"); // 20M Y2K
 
-      if (balance.gte(needed)) {
+      if (balance.gte(threshold)) {
         document.getElementById("status").innerHTML = "<p style='color:lime;'>Y2K Verified</p>";
         setTimeout(loadSOLPhase, 1500);
       } else {
@@ -116,7 +125,7 @@
     function loadSOLPhase() {
       document.getElementById("stepBox").innerHTML = `
         <h2>Step 2: Connect SOL Wallet</h2>
-        <p>Verify you hold at least 20M ROAST</p>
+        <p>Verify 20M+ ROAST holdings</p>
         <button onclick="connectSOL()">Connect Wallet</button>
         <div class="status" id="status"></div>
       `;
@@ -125,24 +134,23 @@
     function connectSOL() {
       if (window.solana && window.solana.isPhantom) {
         window.solana.connect().then(res => {
-          // Simulate ROAST check (wire this in later)
+          // Simulated for now
           document.getElementById("status").innerHTML = "<p style='color:lime;'>ROAST Verified</p>";
           setTimeout(triggerSniperLaunch, 1500);
         });
       } else {
-        alert("Install Phantom Wallet to continue.");
+        alert("Please install Phantom Wallet.");
       }
     }
 
     function triggerSniperLaunch() {
-      // Placeholder — next we’ll build a sniper animation + redirect
       document.getElementById("stepBox").innerHTML = `
-        <h2>ACCESS GRANTED</h2>
-        <p>Firing sniper...</p>
+        <h2 class="blast">SNIPER FIRED</h2>
+        <p>Tracking Y2K target...</p>
       `;
       setTimeout(() => {
         window.location.href = "sniper-dashboard.html";
-      }, 2500);
+      }, 3000);
     }
   </script>
 </body>
