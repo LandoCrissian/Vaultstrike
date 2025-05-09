@@ -2,152 +2,180 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Vaultstrike Access</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vaultstrike: Y2K Checkpoint</title>
   <meta name="theme-color" content="#000000" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Orbitron', sans-serif; }
     body {
-      background: #000;
+      background-color: #000;
       color: #fff;
+      overflow: hidden;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
     }
+
     .glow-box {
-      background: #111;
+      background: rgba(0,0,0,0.8);
       padding: 32px 24px;
-      border-radius: 20px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 0 20px #00ffe1;
+      border-radius: 16px;
+      box-shadow: 0 0 15px #00ffe1;
+      z-index: 10;
       text-align: center;
-      animation: rgbGlow 6s ease-in-out infinite;
+      max-width: 90%;
+      width: 360px;
     }
-    @keyframes rgbGlow {
-      0% { box-shadow: 0 0 15px #ff00ff; }
-      33% { box-shadow: 0 0 15px #00ffe1; }
-      66% { box-shadow: 0 0 15px #ffcc00; }
-      100% { box-shadow: 0 0 15px #ff00ff; }
-    }
+
     h1 {
       font-size: 1.6rem;
-      margin-bottom: 20px;
       background: linear-gradient(90deg, #ff00ff, #00ffe1, #00ff88);
-      background-size: 300%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: titleShift 5s linear infinite;
+      animation: titleShift 6s linear infinite;
+      background-size: 300%;
+      margin-bottom: 20px;
     }
+
     @keyframes titleShift {
       0% { background-position: 0% }
       50% { background-position: 100% }
       100% { background-position: 0% }
     }
+
     button {
-      padding: 12px;
-      margin: 10px 0;
       width: 100%;
+      padding: 12px;
       background: #00ffe1;
       color: #000;
       font-weight: bold;
       border: none;
       border-radius: 10px;
-      font-size: 1rem;
       cursor: pointer;
+      font-size: 1rem;
     }
+
     .status {
-      margin-top: 10px;
+      margin-top: 16px;
       font-size: 0.9rem;
       color: #ccc;
+    }
+
+    .sniper-effect {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bullet {
+      position: absolute;
+      width: 2px;
+      height: 120px;
+      background: linear-gradient(to bottom, #00ffe1, transparent);
+      opacity: 0.7;
+      animation: bulletFly 0.8s ease-out forwards;
+    }
+
+    @keyframes bulletFly {
+      0% { transform: translateY(-150px); opacity: 0.9; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    .impact {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 0%, transparent 80%);
+      opacity: 0.5;
+      animation: flashImpact 0.5s ease-out forwards;
+    }
+
+    @keyframes flashImpact {
+      0% { transform: scale(0.2); opacity: 0.6; }
+      100% { transform: scale(2); opacity: 0; }
     }
   </style>
 </head>
 <body>
+  <div class="sniper-effect" id="sniperCanvas"></div>
+
   <div class="glow-box">
-    <h1>Vaultstrike Verification</h1>
-    <button onclick="connectCRO()">Connect CRO Wallet</button>
-    <div id="croStatus" class="status">Waiting...</div>
-    <button onclick="connectSOL()">Connect SOL Wallet</button>
-    <div id="solStatus" class="status">Waiting...</div>
-    <div id="finalStatus" class="status" style="margin-top:20px;"></div>
+    <h1>Vaultstrike Access</h1>
+    <button onclick="connectCRO()">Connect Wallet</button>
+    <div class="status" id="status">Awaiting connection...</div>
   </div>
 
-  <script>
-    let croVerified = false;
-    let solVerified = false;
-    let croWallet = null;
-    let solWallet = null;
+    <script>
     const y2kAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-    const roastMint = "A6db9o4y5phC5ncSdM8pQKmWanodxLyXgwxuVCuA4ray";
-    const solEndpoint = "https://thrilling-old-sailboat.solana-mainnet.quiknode.pro/7eeaf93b8ff0a17a6172d1a57f8bf43c81d164a0";
+    let currentWallet = "";
+
+    function spawnBullet() {
+      const canvas = document.getElementById("sniperCanvas");
+      const bullet = document.createElement("div");
+      bullet.classList.add("bullet");
+      bullet.style.left = Math.random() * 100 + "vw";
+      canvas.appendChild(bullet);
+      setTimeout(() => canvas.removeChild(bullet), 800);
+    }
+
+    function showImpact(x, y) {
+      const canvas = document.getElementById("sniperCanvas");
+      const impact = document.createElement("div");
+      impact.classList.add("impact");
+      impact.style.left = x + "px";
+      impact.style.top = y + "px";
+      canvas.appendChild(impact);
+      setTimeout(() => canvas.removeChild(impact), 500);
+    }
 
     async function connectCRO() {
+      const status = document.getElementById("status");
       try {
-        if (!window.ethereum) throw new Error("Install MetaMask or WalletConnect.");
+        if (!window.ethereum) throw new Error("Install MetaMask or WalletConnect-enabled browser.");
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
-        croWallet = await provider.getSigner().getAddress();
-        const y2kContract = new ethers.Contract(y2kAddress, ["function balanceOf(address) view returns (uint256)"], provider);
-        const balance = await y2kContract.balanceOf(croWallet);
-        const formatted = parseFloat(ethers.utils.formatUnits(balance, 18));
-        if (formatted >= 20000000) {
-          document.getElementById("croStatus").textContent = `✓ CRO Verified: ${croWallet.slice(0,6)}...${croWallet.slice(-4)}`;
-          croVerified = true;
-          checkAllPassed();
+        const signer = provider.getSigner();
+        currentWallet = await signer.getAddress();
+        const y2k = new ethers.Contract(y2kAddress, ["function balanceOf(address) view returns (uint256)"], provider);
+        const balance = await y2k.balanceOf(currentWallet);
+        const amount = parseFloat(ethers.utils.formatUnits(balance, 18));
+
+        if (amount >= 20000000) {
+          status.textContent = `✓ Verified: ${currentWallet.slice(0,6)}...${currentWallet.slice(-4)}`;
+          launchSniperAnimation();
         } else {
-          document.getElementById("croStatus").textContent = `✗ Y2K Balance too low (${formatted})`;
+          status.textContent = `✗ Y2K Balance too low (${amount})`;
         }
       } catch (err) {
-        document.getElementById("croStatus").textContent = `Error: ${err.message}`;
+        status.textContent = `Error: ${err.message}`;
       }
     }
 
-    async function connectSOL() {
-      try {
-        const provider = window.phantom?.solana || window.solflare?.solana || window.backpack?.solana;
-        if (!provider || !provider.isConnected) await provider.connect();
-        solWallet = provider.publicKey.toString();
-
-        const connection = new solanaWeb3.Connection(solEndpoint);
-        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-          provider.publicKey,
-          { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }
-        );
-
-        const roastAccount = tokenAccounts.value.find(acc =>
-          acc.account.data.parsed.info.mint === roastMint
-        );
-
-        const roastAmount = roastAccount
-          ? roastAccount.account.data.parsed.info.tokenAmount.uiAmount
-          : 0;
-
-        if (roastAmount >= 20000000) {
-          document.getElementById("solStatus").textContent = `✓ SOL Verified: ${solWallet.slice(0,4)}...${solWallet.slice(-4)}`;
-          solVerified = true;
-          checkAllPassed();
-        } else {
-          document.getElementById("solStatus").textContent = `✗ ROAST Balance too low (${roastAmount})`;
-        }
-      } catch (err) {
-        document.getElementById("solStatus").textContent = `Error: ${err.message}`;
-      }
-    }
-
-    function checkAllPassed() {
-      if (croVerified && solVerified) {
-        document.getElementById("finalStatus").textContent = "All checks passed. Redirecting...";
+    function launchSniperAnimation() {
+      for (let i = 0; i < 10; i++) {
         setTimeout(() => {
-          window.location.href = "sniper.html";
-        }, 1500);
+          spawnBullet();
+          showImpact(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+        }, i * 120);
       }
+
+      setTimeout(() => {
+        document.getElementById("status").textContent = "Target hit. Entering sniper zone...";
+      }, 1400);
+
+      setTimeout(() => {
+        window.location.href = "sniper.html";
+      }, 2200);
     }
   </script>
 </body>
