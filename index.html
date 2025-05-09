@@ -2,102 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Vaultstrike Gate</title>
   <meta name="theme-color" content="#000000" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <style>
-    html, body {
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    html, body {
       height: 100%;
       background: #000;
-      color: white;
-      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .grain {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/8/89/Noise_texture.png');
-      opacity: 0.07;
-      z-index: 0;
-      animation: moveGrain 10s steps(10) infinite;
-    }
-
-    @keyframes moveGrain {
-      0% { background-position: 0 0; }
-      50% { background-position: 100px 100px; }
-      100% { background-position: 0 0; }
-    }
-
-    .glow-box {
-      position: relative;
-      z-index: 1;
+    .gate-box {
       background: #111;
       padding: 32px 24px;
       border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 0 24px #00ffe1;
-      max-width: 360px;
       width: 90%;
-      animation: pulseRGB 6s ease-in-out infinite;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 0 30px #00ffe1;
+      animation: glowShift 5s infinite ease-in-out;
     }
 
-    @keyframes pulseRGB {
-      0% { box-shadow: 0 0 12px #ff00ff; }
-      33% { box-shadow: 0 0 12px #00ffe1; }
-      66% { box-shadow: 0 0 12px #ffcc00; }
-      100% { box-shadow: 0 0 12px #ff00ff; }
+    @keyframes glowShift {
+      0% { box-shadow: 0 0 20px #ff00ff; }
+      33% { box-shadow: 0 0 20px #00ffe1; }
+      66% { box-shadow: 0 0 20px #ffcc00; }
+      100% { box-shadow: 0 0 20px #ff00ff; }
     }
 
-    .title {
+    .gate-title {
       font-size: 1.8rem;
       margin-bottom: 20px;
       background: linear-gradient(90deg, #00cfff, #00ff66, #ff9900);
       background-size: 300%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: gradientText 6s ease infinite;
+      animation: textGlow 6s ease-in-out infinite;
     }
 
-    @keyframes gradientText {
-      0% { background-position: 0% }
+    @keyframes textGlow {
+      0%, 100% { background-position: 0% }
       50% { background-position: 100% }
-      100% { background-position: 0% }
-    }
-
-    input, button {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: 1rem;
-      border: none;
     }
 
     input {
-      background: #222;
-      color: white;
+      width: 100%;
+      padding: 14px;
       margin-bottom: 16px;
-      border: 2px solid #00ffe1;
+      border: none;
+      border-radius: 10px;
+      background: #222;
+      color: #00ffe1;
+      font-size: 1rem;
+      outline: none;
     }
 
     input::placeholder {
       color: #00ffe1;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
     button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
       background: #00ffe1;
-      color: black;
+      color: #000;
+      font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s ease;
     }
 
     button:hover {
@@ -105,37 +91,39 @@
     }
 
     .status {
-      margin-top: 14px;
-      font-size: 14px;
+      margin-top: 12px;
+      font-size: 0.9rem;
       color: #ccc;
     }
   </style>
 </head>
 <body>
-  <div class="grain"></div>
-  <div class="glow-box">
-    <div class="title">Vaultstrike Gate</div>
-    <input id="passInput" type="password" placeholder="Enter Password" />
-    <button onclick="checkPass()">Enter</button>
-    <div class="status" id="status"></div>
+  <div class="gate-box">
+    <div class="gate-title">Vaultstrike Gate</div>
+    <input type="password" id="passInput" placeholder="Enter Password" />
+    <button onclick="checkPassword()">Enter</button>
+    <div id="status" class="status"></div>
   </div>
 
   <script>
     const PASSWORD = "vaultstrike2025";
 
-    function checkPass() {
+    function checkPassword() {
       const input = document.getElementById("passInput").value;
       const status = document.getElementById("status");
+
       if (input === PASSWORD) {
         status.textContent = "Access Granted...";
-        setTimeout(() => window.location.href = "access.html", 1200);
+        setTimeout(() => {
+          window.location.href = "access.html";
+        }, 1000);
       } else {
         status.textContent = "Access Denied.";
       }
     }
 
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") checkPass();
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter") checkPassword();
     });
   </script>
 </body>
